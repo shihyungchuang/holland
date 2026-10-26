@@ -1,696 +1,619 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>何倫碼職業興趣測驗</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>何倫碼職業興趣測驗</title>
 
-  <!-- 基本資訊 -->
-  <meta name="version" content="2.0">
-  <meta name="author" content="莊士勇Steven">
-  <meta name="description" content="本測驗依據 John L. Holland 博士提出的 SDS 架構設計，並由莊士勇 Steven 本土化調整，幫助您了解職業興趣與潛力，找到最適合的職涯方向。">
-  <meta name="keywords" content="職業興趣測驗, 何倫碼, 職業測評, 興趣測試, 自我探索">
+<!-- 基本資訊 -->
+<meta name="version" content="3.0">
+<meta name="author" content="莊士勇 Steven">
+<meta name="description" content="本測驗依據 John L. Holland 博士提出的 SDS 架構設計，並由莊士勇 Steven 本土化調整，幫助您了解職業興趣，找到適合的職涯方向。">
+<meta name="keywords" content="職業興趣測驗, 何倫碼, 職業測評, 興趣測試, 自我探索">
 
-  <!-- 社群分享設定 -->
-  <meta property="og:title" content="何倫碼職業興趣測驗">
-  <meta property="og:description" content="測試您的職業興趣，了解您在不同領域的潛力，並找到適合的職業方向。">
-  <meta property="og:image" content="HollandCode_og_image.png">
-  <meta property="og:type" content="website">
-  <meta property="og:updated_time" content="2025-05-12T00:00:00Z">
+<!-- 社群分享設定 -->
+<meta property="og:title" content="何倫碼職業興趣測驗">
+<meta property="og:description" content="透過 60 項日常活動，找出你的職業興趣類型。">
+<meta property="og:type" content="website">
 
-    <!-- 設置網站的縮略圖hollandcode  -->
-    <link rel="icon" href="hollandcode.ico" type="image/x-icon" />
-  
-  <!-- 釋出日期 -->
-  <meta property="article:published_time" content="2025-05-04T00:00:00Z">
-  <meta property="article:modified_time" content="2025-05-12T00:00:00Z">
+<!-- 網站小圖示 -->
+<link rel="icon" href="hollandcode.ico" type="image/x-icon">
 
-  <!-- 載入 Chart.js 圖表庫 -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ===== 共用色彩與字體（四大測驗統一使用） ===== */
+:root {
+  --bg: #f6f5f2;          /* 頁面底色：溫和米白 */
+  --surface: #ffffff;     /* 卡片、區塊底色 */
+  --text: #2b2b2b;        /* 主要文字 */
+  --muted: #6b6b6b;       /* 次要文字 */
+  --line: #e2e0da;        /* 分隔線、外框 */
+  --brand: #35628E;       /* 主色：按鈕 */
+  --brand-dark: #284c6e;
+  --accent: #1D9E75;      /* 何倫碼的強調色：六角形、前三碼 */
+  --accent-dark: #0F6E56;
+  --radius: 14px;
+  --font: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
 
-<!-- 載入 datalabels 插件 -->
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-
-  <style>
-/* ----- 整體網頁基本樣式 ----- */
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
 body {
-  font-family: sans-serif;
   margin: 0;
-  padding: 0 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #f4f4f4;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.5;
 }
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
 
-/* ----- 標題樣式 ----- */
-h1 {
-  font-size: 2em;
-  text-align: center;
-  margin: 10px;
-  padding: 10px;
-  background-color: #fff;
-  width: 100%;
-  border-radius: 8px;
-}
+/* ===== 頁首與步驟指示 ===== */
+header { padding: 20px 0 8px; text-align: center; }
+h1 { font-size: 26px; margin: 0 0 12px; letter-spacing: 1px; }
+.steps { display: flex; justify-content: center; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 15px; color: var(--muted); }
+.steps li { padding: 4px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+.steps li.on { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 600; }
 
-/* ----- 圖表容器 ----- */
-#barChart {
-  width: 100%;
-  height: auto;
-  max-width: 600px;
-  margin: 20px auto;
-}
+/* ===== 說明頁 ===== */
+.intro { text-align: center; padding: 8px 0 4px; }
+.intro .desc { font-size: 18px; margin: 12px 0; }
+.intro .flow { font-size: 16px; color: var(--brand); font-weight: 600; margin: 12px 0; }
+.intro .note { font-size: 15px; color: var(--muted); margin: 12px 0 22px; }
+.intro .start-btn { display: block; width: 100%; margin: 0 0 12px; padding: 16px; font-size: 19px; }
 
-/* ----- 題目區塊樣式 ----- */
-.question-container {
-  margin-top: 20px;
-  text-align: center;
-}
-
+/* ===== 作答 ===== */
 .question {
-  font-size: 1.5em;
-  margin-bottom: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  margin: 14px 0;
+  text-align: center;
 }
-
-/* ----- 選項按鈕樣式 ----- */
-.buttons {
-  display: flex;
-  justify-content: center; /* 水平置中 */
-  align-items: center; /* 垂直置中 */
-  gap: 10px;
+.question .no { font-size: 14px; color: var(--muted); }
+.question .ask { font-size: 15px; color: var(--muted); margin-top: 8px; }
+.question .text { font-size: 22px; font-weight: 700; margin: 4px 0 18px; }
+.answers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.ans {
+  font: inherit; font-size: 18px; font-weight: 700;
+  border: 3px solid transparent; border-radius: 12px;
+  padding: 16px 4px; cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
+.ans.like { background: #3E8E5A; color: #fff; }
+.ans.ok { background: #EBC24A; color: #3a2a00; }
+.ans.dislike { background: #D9653B; color: #fff; }
+.ans.chosen { border-color: var(--text); }
+.progress { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--muted); }
+.progress .track { flex: 1; height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; }
+.progress .fill { height: 100%; background: var(--brand); border-radius: 5px; transition: width .2s; }
 
-.buttons button {
-  padding: 12px 25px;
-  font-size: 0.9em;
-  margin: 5px;
-  border: none;
+/* ===== 結果 ===== */
+.result-meta { text-align: center; color: var(--muted); font-size: 16px; margin: 4px 0 10px; }
+.notice { text-align: center; color: var(--muted); font-size: 15px; margin: 12px 0; }
+.panel-box {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px 12px; margin: 12px 0;
+}
+.code-title { text-align: center; font-size: 15px; color: var(--muted); margin: 0; }
+.code { text-align: center; font-size: 44px; font-weight: 700; letter-spacing: 6px; color: var(--accent-dark); margin: 0; line-height: 1.2; }
+.code-names { text-align: center; font-size: 15px; color: var(--muted); margin: 2px 0 0; }
+.tie { text-align: center; font-size: 15px; color: var(--accent-dark); font-weight: 600; margin: 4px 0 0; }
+
+.hexagon { display: block; width: 100%; max-width: 420px; margin: 4px auto 0; }
+.bars { margin-top: 6px; }
+.bar-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 16px; }
+.bar-row .label { flex: 0 0 76px; }
+.bar-row .track { flex: 1; height: 16px; border-radius: 8px; background: var(--bg); overflow: hidden; }
+.bar-row .fill { height: 100%; border-radius: 8px; background: #b4b2a9; }
+.bar-row.top .fill { background: var(--accent); }
+.bar-row.top .label { color: var(--accent-dark); font-weight: 700; }
+.bar-row .num { flex: 0 0 28px; text-align: right; font-weight: 700; }
+
+.advice h3 { font-size: 16px; color: var(--muted); margin: 0 0 6px; }
+.advice p { margin: 0 0 10px; line-height: 1.7; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+.link-btn104 {
+  display: inline-block; text-decoration: none; text-align: center;
+  font-size: 16px; font-weight: 700; color: var(--brand);
+  border: 2px solid var(--brand); border-radius: 12px; padding: 8px 14px;
+}
+.link-btn104 small { display: block; font-size: 13px; font-weight: 400; color: var(--muted); }
+
+/* ===== 按鈕 ===== */
+.btn {
+  border: none; border-radius: 12px;
+  padding: 12px 18px;
+  font: inherit; font-size: 17px; font-weight: 600;
   cursor: pointer;
-  border-radius: 6px;
-  transition: background-color 0.3s ease;
+  background: var(--brand); color: #fff;
 }
+.btn.ghost { background: var(--surface); color: var(--text); border: 1px solid var(--line); }
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 16px 0; }
 
-.buttons button:hover {
-  opacity: 0.8;
+/* ===== 結果圖片視窗 ===== */
+.overlay {
+  position: fixed; inset: 0; z-index: 10;
+  background: rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
 }
-
-/* 當按鈕獲得焦點時，顯示陰影效果 */
-.buttons button:focus {
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+.overlay .panel {
+  background: var(--surface); border-radius: var(--radius);
+  max-width: 480px; width: 100%; max-height: 90vh; overflow: auto;
+  padding: 16px; text-align: center;
 }
+.overlay img { width: 100%; border: 1px solid var(--line); border-radius: 8px; }
 
-/* 喜歡按鈕 */
-.buttons button:nth-child(1) {
-  background-color: #4CAF50;
-  color: white;
-}
-
-/* 普通按鈕 */
-.buttons button:nth-child(2) {
-  background-color: #FFC107;
-  color: white;
-}
-
-/* 不喜歡按鈕 */
-.buttons button:nth-child(3) {
-  background-color: #FF5722;
-  color: white;
-}
-
-/* 回上一題按鈕 */
-.back-button {
-  background-color: #F44336;
-  color: white;
-  font-size: 0.9em;
-  padding: 10px 20px;
-  border-radius: 6px;
-}
-
-/* ----- 進度條樣式 ----- */
-.progress-bar {
-  width: 100%;
-  background-color: #eee;
-  height: 20px;
-  margin-top: 20px;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: #4CAF50;
-  text-align: center;
-  color: white;
-  line-height: 20px;
-  font-size: 14px;
-  transition: width 0.5s ease; /* 增加動畫效果 */
-}
-
-/* ----- 結果區塊樣式 ----- */
-.result-container {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.result-container p {
-  font-size: 1.5em;
-  font-weight: bold;
-  text-align: center;
-  margin-top: 10px; /* 增加一些間距 */
-}
-
-/* 讓結果區塊的字體變大 */
-.result-container h3 {
-  font-size: 1.5em; /* 增大 "你的何倫碼" 標題 */
-}
-
-/* 增大 "你的何倫碼：xxx" 文字 */
-#code {
-  font-size: 2em; /* 增大 "你的何倫碼：xxx" 文字 */
-  font-weight: bold;
-  margin-top: 10px; /* 增加上方間距 */
-}
-
-/* 何倫碼後面的字如(A)藝術型+(R)實作型 */
-.small-text {
-  font-size: 1em;  /* 設定為主要字體大小的 80% */
-  color: #666;       /* 設定顏色為灰色，讓它不那麼突出 */
-}
-
-
-/* 增大 "Rx Ix Ax Sx Ex Cx" 文字 */
-#score {
-  font-size: 1.5em; /* 增大 "Rx Ix Ax Sx Ex Cx" 文字 */
-  font-weight: normal;
-  margin-top: 20px; /* 增加間距與其他區塊分開 */
-}
-
-/* 外部連結按鈕樣式 */
-.external-link-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #2196F3;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
-  margin-top: 20px;
-}
-.external-link-button:hover {
-  background-color: #1976D2;
-}
-
-
-/* 何倫碼結果回饋訊息 */
-.feedback-container {
-  max-width: 600px;
-  width: 100%;
-  margin: 20px auto;
-  word-wrap: break-word; /* 保證文字換行 */
-  font-size: 0.8em;
-  text-align: left; /* 讓文字靠左顯示 */
-}
-
-/* 強制對齊 #CareerAdvice 與 #career-suggestions 文字 */
-#CareerAdvice, #career-suggestions {
-  font-weight: normal; /* 明確設定為不加粗 */
-  text-align: left; /* 確保文字靠左顯示 */
-}
-
-/* 完成測驗時間文字樣式 */
-#complete-time {
-  margin-top: 1em;         /* 與上方元素間隔一點距離 */
-  color: #007BFF;          /* 使用亮藍色（Bootstrap 標準藍），清晰又有活力 */
-  font-size: 16px;         /* 設定文字大小為 16px，適合輔助資訊顯示 */
-}
-
-
-/* 版權信息樣式 */
-#footer {
-  text-align: center;
-  font-size: 1em;
-  color: #777;
-  padding: 20px;
-  background-color: #fff;
-  width: 100%;
-  margin-top: 20px;
-  border-top: 1px solid #ddd;
-}
-
-/* ----- 響應式樣式 (手機版) ----- */
-@media (max-width: 768px) {
-  h1 {
-    font-size: 1.2em;
-  }
-  #barChart {
-    max-width: 100%;
-  }
-  #footer {
-    font-size: 1em;
-    padding: 15px;
-  }
-}
-  </style>
+/* ===== 頁尾 ===== */
+footer { text-align: center; color: var(--muted); font-size: 14px; padding: 24px 0 32px; line-height: 1.8; }
+</style>
 </head>
 <body>
 
-  <!-- 網頁標題 -->
-  <h1>Holland Code何倫碼職業興趣測驗</h1>
+<div class="wrap">
+  <header>
+    <h1>何倫碼職業興趣測驗</h1>
+    <ol class="steps" id="steps">
+      <li data-step="quiz">1 作答</li>
+      <li data-step="result">2 結果</li>
+    </ol>
+  </header>
 
-  <!-- 題目顯示區 -->
-  <div id="question-container" class="question-container"></div>
+  <main id="app"></main>
 
-  <!-- 進度條 -->
-  <div class="progress-bar" id="progress-bar">
-    <div class="progress-fill" id="progress">1/60 (0%)</div>
-  </div>
-
-<!-- 結果區：圖表、何倫碼、得分 -->
-<div class="result-container" id="result-container" style="display: none;">
-  <!-- 圖表 -->
-  <canvas id="barChart" width="500" height="400"></canvas>
-  
-  <!-- 何倫碼結果 -->
-  <h3>你的何倫碼：<span id="code"></span><span class="small-text"></span></h3>
-
-  <!-- 顯示建議區 -->
-  <div id="career-advice" class="feedback-container">
-
-    <!-- 何倫碼代碼說明 -->
-    <p id="CareerAdvice"></p>
-
-    <!-- 職業建議說明 -->
-    <p id="career-suggestions"></p>
-  </div>
-
-<div id="complete-time">完成時間：</div>
-
+  <!-- 版權宣告 -->
+  <footer>
+    本測驗依據Holland六型人格理論與SDS架構設計，<br>
+    並由莊士勇諮詢師依現代職場情境重新設計。<br>
+    &copy; 2025–2026 GCDF全球職涯發展師 莊士勇 設計
+  </footer>
 </div>
 
+<!-- 載入題目與代碼說明 -->
+<script src="holland-questions.js"></script>
+<script src="holland-results.js"></script>
 
-<!-- 新增引導到外部網頁的連結，並初始隱藏 -->
-<div id="external-link-container" style="display: none;">
-  <a href="" id="external-link" target="_blank" class="external-link-button">點擊這裡查看更多關於何倫碼的職業內容</a>
-</div>
+<script>
+// ===== 作答進度 =====
+// 只暫存在使用者自己的瀏覽器（不會上傳），方便不小心重新整理時接著做；超過 24 小時自動作廢。
+const STORAGE_KEY = 'holland-progress';
+const EXPIRE_MS = 24 * 60 * 60 * 1000;
 
-  <!-- 版權信息 -->
-  <div id="footer">
-    本測驗依據Holland六型人格理論與SDS架構設計，<BR>並由莊士勇諮詢師依現代職場情境重新設計。<BR>&copy; 2025 GCDF全球職涯發展師 莊士勇 設計
-  </div>
-
-  <script>
-    // 何倫碼測驗題目資料
-    // SDS簡化版60題
-const questions = [
-  // Realistic（R）實作型— 動手操作、戶外活動、工具與機械
-  { text: "修理手機、電器或簡單家電", type: "R" },
-  { text: "使用電動工具進行DIY或居家修繕", type: "R" },
-  { text: "組裝傢俱或機械模型", type: "R" },
-  { text: "駕駛汽機車或操作交通工具進行任務", type: "R" },
-  { text: "使用園藝工具種植植物或整理陽台花園", type: "R" },
-  { text: "操作3C設備或簡易機械進行日常維護", type: "R" },
-  { text: "參與戶外活動如露營、搭帳棚或野炊", type: "R" },
-  { text: "協助搬運大型物品或整理儲藏空間", type: "R" },
-  { text: "動手改裝或升級電腦、主機設備", type: "R" },
-  { text: "參與裝潢或空間佈置的實作工作", type: "R" },
-
-  // Investigative（I）研究型— 分析、理解、探索、理論思考
-  { text: "解數學題或邏輯推理題", type: "I" },
-  { text: "設計或操作科學實驗", type: "I" },
-  { text: "研究動物、植物或自然現象", type: "I" },
-  { text: "搜集數據並進行資料分析", type: "I" },
-  { text: "閱讀有關科技、科普或醫學的文章", type: "I" },
-  { text: "撰寫程式或設計網站/小工具", type: "I" },
-  { text: "觀察現象並思考可能的原因與解釋", type: "I" },
-  { text: "查閱醫學、心理學或健康知識", type: "I" },
-  { text: "探討社會議題背後的系統與結構", type: "I" },
-  { text: "分析產品或市場背後的機制與邏輯", type: "I" },
-
-  // Artistic（A）藝術型— 創意、表達、設計、美感、故事
-  { text: "繪畫、插畫或平面設計創作", type: "A" },
-  { text: "撰寫文章、劇本、小說或個人心得", type: "A" },
-  { text: "創作音樂或混音音效", type: "A" },
-  { text: "拍攝短影音或紀錄生活素材", type: "A" },
-  { text: "舞蹈、表演或拍攝演出片段", type: "A" },
-  { text: "設計IG貼文、海報或名片", type: "A" },
-  { text: "剪輯影片或操作影像處理軟體", type: "A" },
-  { text: "規劃展覽、空間佈置或舞台設計", type: "A" },
-  { text: "創作文案、標語或創業提案簡報", type: "A" },
-  { text: "利用社群平台分享生活觀點與創意內容", type: "A" },
-
-  // Social（S）社會型— 幫助、教導、溝通、合作
-  { text: "協助朋友解決煩惱或情緒問題", type: "S" },
-  { text: "與他人討論生活或職涯困惑", type: "S" },
-  { text: "參與志工、公益或社區活動", type: "S" },
-  { text: "教導或輔導他人學習技能或課程", type: "S" },
-  { text: "關心年長者、小孩或身心障礙者", type: "S" },
-  { text: "擔任活動主持人或引導者", type: "S" },
-  { text: "組織班級、社團或群組活動", type: "S" },
-  { text: "安排聚會、課程或線上分享會", type: "S" },
-  { text: "傾聽他人訴苦並給予實際建議", type: "S" },
-  { text: "協助團隊達成共同任務或專案", type: "S" },
-
-  // Enterprising（E）企業型— 領導、說服、企劃、談判、創業
-  { text: "主持或發表簡報、提案簡介", type: "E" },
-  { text: "推銷商品、想法或活動計畫", type: "E" },
-  { text: "說服他人接受你的觀點或決策", type: "E" },
-  { text: "經營社群平台、網路商店或接案工作", type: "E" },
-  { text: "帶領小組討論、制定團隊目標", type: "E" },
-  { text: "安排行程、分配任務或資源", type: "E" },
-  { text: "擴展人脈、參與社交場合或交流活動", type: "E" },
-  { text: "擬定行銷、企劃或策略方案", type: "E" },
-  { text: "協商合作條件或議價爭取資源", type: "E" },
-  { text: "願意承擔風險並嘗試創業行動", type: "E" },
-
-  // Conventional（C）事務型— 系統化、重視規則、流程、管理
-  { text: "整理資料、記帳或輸入表單資訊", type: "C" },
-  { text: "規劃時間表、行程或任務分配表", type: "C" },
-  { text: "編排財務收支或個人預算記錄", type: "C" },
-  { text: "製作會議紀錄、報表或流程圖", type: "C" },
-  { text: "整理文書、檔案或雲端資料夾", type: "C" },
-  { text: "分類、命名、歸檔工作資料", type: "C" },
-  { text: "處理報名表、訂單或客戶資料", type: "C" },
-  { text: "核對數字或檢查表單是否正確", type: "C" },
-  { text: "遵照SOP或系統操作指示完成任務", type: "C" },
-  { text: "在有制度與清楚規則的環境中工作", type: "C" }
+// ===== 測驗設定 =====
+// 六角形的順序：R I A S E C（相鄰的類型性質相近，對角的類型性質相反）
+const TYPES = ['R', 'I', 'A', 'S', 'E', 'C'];
+const NAMES = { R: '實作型', I: '研究型', A: '藝術型', S: '社會型', E: '企業型', C: '事務型' };
+const ANSWERS = [
+  { score: 2, label: '喜歡', cls: 'like' },
+  { score: 1, label: '還好', cls: 'ok' },
+  { score: 0, label: '不喜歡', cls: 'dislike' }
 ];
+const MAX_SCORE = 2 * hollandQuestions.filter(q => q.type === 'R').length; // 每型最高分（20）
+const LINK_104 = 'https://guide.104.com.tw/wow/jobworld/holland/?code=';
 
-    // 隨機打亂題目順序
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
+let state = loadState() || newState();
 
-    shuffleArray(questions);
+function newState() {
+  return {
+    v: 1,
+    step: 'intro',
+    qOrder: [],     // 打散後的題目順序
+    answers: [],    // 每一題的分數（2／1／0）
+    current: 0,
+    finishedAt: null,
+    savedAt: Date.now()
+  };
+}
 
-    // 初始變數
-    let current = 0;
-    const scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
-    let previousAnswers = [];
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!s || Date.now() - s.savedAt > EXPIRE_MS) return null;
+    if (s.v !== 1 || (s.qOrder.length && s.qOrder.length !== hollandQuestions.length)) return null; // 題目有更新時重來
+    return s;
+  } catch (e) { return null; }
+}
 
-    // 顯示題目
-    function showQuestion() {
-      const container = document.getElementById('question-container');
-      container.innerHTML = '';
+function saveState() {
+  state.savedAt = Date.now();
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
 
-      if (current < questions.length) {
-        const q = questions[current];
-        const div = document.createElement('div');
-        div.className = 'question';
-        div.innerHTML = `
-          <p>${current + 1}. ${q.text}</p>
-          <div class="buttons">
-            <button onclick="answer(2)">喜歡</button>
-            <button onclick="answer(1)">還好</button>
-            <button onclick="answer(0)">不喜歡</button>
-          </div>
-          ${current > 0 ? '<br><button class="back-button" onclick="goBack()">回上一題重做</button>' : ''}
-        `;
-        container.appendChild(div);
-      }
+function clearState() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+}
 
-      // 更新進度條（顯示 目前/總題數 + 百分比）
-      const percent = Math.round((current + 1) / questions.length * 100);
-      document.getElementById('progress').style.width = percent + '%';
-      document.getElementById('progress').innerText = `${current + 1}/${questions.length} (${percent}%)`;
-    }
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
-// 答題後處理
+function start() {
+  state = newState();
+  state.qOrder = shuffle([...hollandQuestions.keys()]);
+  go('quiz');
+}
+
+// ===== 畫面切換 =====
+const app = document.getElementById('app');
+
+function go(step) {
+  state.step = step;
+  saveState();
+  render();
+  window.scrollTo(0, 0);
+}
+
+function render() {
+  document.getElementById('steps').hidden = state.step === 'intro';
+  document.querySelectorAll('#steps li').forEach(li => {
+    li.classList.toggle('on', li.dataset.step === state.step);
+  });
+  if (state.step === 'intro') renderIntro();
+  else if (state.step === 'quiz') renderQuiz();
+  else renderResult();
+}
+
+// ===== 說明頁 =====
+function renderIntro() {
+  app.innerHTML = `
+    <div class="intro">
+      <p class="desc">透過 ${hollandQuestions.length} 項日常活動，<br>找出你的職業興趣類型</p>
+      <p class="flow">① 作答 → ② 結果</p>
+      <p class="note">依照你的感覺選擇，沒有對錯<br>不需填寫個人資料，結果只存在你的手機</p>
+      <button type="button" class="btn start-btn" id="start">開始</button>
+    </div>`;
+  document.getElementById('start').onclick = start;
+}
+
+// ===== 第 1 步：作答 =====
+function renderQuiz() {
+  const total = state.qOrder.length;
+  const i = state.current;
+  const q = hollandQuestions[state.qOrder[i]];
+
+  app.innerHTML = `
+    <div class="question">
+      <div class="no">第 ${i + 1} 題</div>
+      <div class="ask">你喜歡做這件事嗎？</div>
+      <div class="text">${q.text}</div>
+      <div class="answers">
+        ${ANSWERS.map(a => `<button type="button" class="ans ${a.cls}${state.answers[i] === a.score ? ' chosen' : ''}" data-score="${a.score}">${a.label}</button>`).join('')}
+      </div>
+    </div>
+    <div class="progress">
+      <div class="track"><div class="fill" style="width:${(i + 1) / total * 100}%"></div></div>
+      <span>${i + 1} / ${total}</span>
+    </div>
+    <div class="btn-row">
+      ${i > 0 ? '<button type="button" class="btn ghost" id="prev">← 上一題</button>' : ''}
+    </div>`;
+
+  app.querySelectorAll('.ans').forEach(btn => {
+    btn.onclick = () => answer(Number(btn.dataset.score));
+  });
+  if (i > 0) document.getElementById('prev').onclick = () => {
+    state.current--;
+    saveState();
+    renderQuiz();
+  };
+}
+
+// 選完自動進入下一題，最後一題選完就看結果
 function answer(score) {
-  const q = questions[current]; // 取得目前的題目對象（包含類型等資訊）
-  scores[q.type] += score;      // 將該題所屬類型的得分加總（例如加到R、I等）
-  previousAnswers.push({ index: current, score }); // 紀錄使用者的回答（題號與分數）
-  current++;                    // 移動到下一題
-  if (current < questions.length) {
-    showQuestion();             // 若還有題目，顯示下一題
+  state.answers[state.current] = score;
+  if (state.current < state.qOrder.length - 1) {
+    state.current++;
+    saveState();
+    renderQuiz();
+    window.scrollTo(0, 0);
   } else {
-    showResult();               // 若題目答完，顯示結果
+    state.finishedAt = Date.now();
+    go('result');
   }
 }
 
-    // 回上一題
-    function goBack() {
-      const last = previousAnswers.pop();
-      scores[questions[last.index].type] -= last.score;
-      current = last.index;
-      showQuestion();
-    }
-
-    // 顯示結果
-    function showResult() {
-      document.getElementById('question-container').style.display = 'none';
-      document.getElementById('progress-bar').style.display = 'none';
-      document.getElementById('result-container').style.display = 'block';
-
-      const ctx = document.getElementById('barChart').getContext('2d');
-      const data = {
-        labels: ["實際型 (R)", "研究型 (I)", "藝術型 (A)", "社會型 (S)", "企業型 (E)", "常規型 (C)"],
-        datasets: [{
-          label: '', // 不顯示圖例標籤
-          data: [scores.R, scores.I, scores.A, scores.S, scores.E, scores.C],
-          backgroundColor: [
-            'rgba(255,99,132,0.7)',
-            'rgba(54,162,235,0.7)',
-            'rgba(255,206,86,0.7)',
-            'rgba(75,192,192,0.7)',
-            'rgba(153,102,255,0.7)',
-            'rgba(255,159,64,0.7)'
-          ],
-          borderColor: [
-            'rgba(255,99,132,1)',
-            'rgba(54,162,235,1)',
-            'rgba(255,206,86,1)',
-            'rgba(75,192,192,1)',
-            'rgba(153,102,255,1)',
-            'rgba(255,159,64,1)'
-          ],
-          borderWidth: 1
-        }]
-      };
-
-new Chart(ctx, {
-  type: 'bar',
-  data: data,
-  options: {
-    responsive: true,
-    indexAxis: 'y',
-    scales: {
-      x: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: '',// Y軸上的名稱 得分
-          font: { size: 18 }
-        },
-        ticks: {
-          stepSize: 1,
-          font: { size: 14 },
-      color: '#333'
-        }
-      },
-      y: {
-        title: {
-          display: true,
-          text: '',// Y軸上的名稱 職業類型
-          font: { size: 18 }
-        },
-        ticks: {
-          font: { size: 20 },
-      color: '#333'
-        }
-      }
-    },
-    plugins: {
-      legend: {
-        display: false // 移除圖例（預設粉紅色框框）
-      },
-      tooltip: {
-        titleFont: { size: 16 },
-        bodyFont: { size: 14 }
-      },
-      datalabels: {
-        anchor: 'center', // 將數字對齊到條形圖的左側 start是左側 end 是放右側 center條形圖中間
-        align: 'center', // right讓數字顯示在右邊 left在左邊 center條形圖上方
-        color: '#000',
-        font: {
-          size: 24,
-          weight: 'bold'
-        },
-        formatter: function(value) {
-          return value; // 顯示數字
-        }
-      }
-    }
-  },
-  plugins: [ChartDataLabels] // 加這行來啟用資料標籤
-});
-
-
-// 顯示代碼與分數
-const codeResult = getCode(); // 這裡獲得測驗結果代碼，如 "IA"
-
-// 顯示代碼 + 何倫碼描述
-const codeDescription = getCodeDescription(codeResult);
-document.getElementById('code').innerHTML = codeResult;;
-
-// 顯示代碼後的小字（例如 "(RI)"）
-document.querySelector('.small-text').innerText = ` ${codeDescription}`;  // 假設 getCodeDescription 回傳 "RI"
-
-// 顯示代碼說明文字
-const careerAdvice = getCareerAdvice(codeResult);
-document.getElementById('CareerAdvice').innerText = careerAdvice;
-
-// 顯示職業建議
-const careerSuggestions = getCareerSuggestions(codeResult);
-document.getElementById('career-suggestions').innerText = careerSuggestions;
-
-  // 設置外部連結，將連結動態顯示
-  const externalLink = `https://guide.104.com.tw/wow/jobworld/holland/?code=${codeResult}`;
-  const linkText = `點擊這裡查看更多關於${codeResult}的職業內容`; // 這裡可以根據代碼動態修改「查看更多詳細內容」的文字
-  document.getElementById('external-link').innerText = linkText;
-  document.getElementById('external-link').href = externalLink; // 設置外部連結
-  document.getElementById('external-link-container').style.display = 'block'; // 顯示外部連結
-
+// ===== 第 2 步：結果 =====
+function formatTime(ts) {
+  const d = new Date(ts);
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
-    // 取得前三名代碼 slice(0, 3)取三碼 slice(0, 2)取兩碼
-    function getCode() {
-      const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-      return sorted.slice(0, 2).map(i => i[0]).join('');
-    }
 
+// 計分與何倫碼：同分時依 R I A S E C 的順序排，並另外標示同分
+function analyze() {
+  const scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+  state.qOrder.forEach((qi, i) => { scores[hollandQuestions[qi].type] += state.answers[i]; });
+  const sorted = [...TYPES].sort((a, b) => scores[b] - scores[a]);
+  const code = sorted.slice(0, 3);
+  // 和第三碼同分（或更高）的都算候選，用來列出同分與 104 連結
+  const third = scores[code[2]];
+  const candidates = sorted.filter(t => scores[t] >= third);
+  const ties = [];
+  candidates.forEach(t => {
+    const group = candidates.filter(x => scores[x] === scores[t]);
+    if (group.length > 1 && group[0] === t) ties.push(group);
+  });
+  // 104 只有兩碼：用候選類型兩兩組合（最多 6 組）
+  const pairs = [];
+  candidates.forEach((a, i) => candidates.slice(i + 1).forEach(b => pairs.push(a + b)));
+  return { scores, sorted, code, ties, pairs: pairs.slice(0, 6) };
+}
 
-// 取得目前的日期和時間(開始)
-const now = new Date();
-const dateString = now.toLocaleDateString();  // 將日期格式化為字串，例如：2025/5/12
-const timeString = now.toLocaleTimeString();  // 將時間格式化為字串，例如：14:32:18
+function tieText(ties) {
+  return ties.map(g => g.join('、') + ' 同分').join('；');
+}
 
- // 顯示完成時間到網頁上的元素（ID 為 complete-time）
-document.getElementById('complete-time').innerHTML = `完成時間：${dateString} ${timeString}<br>請截圖本頁面，請莊老師為您解讀喔`;
+function renderResult() {
+  const { scores, sorted, code, ties, pairs } = analyze();
+  const key = code[0] + code[1];
+  const info = codeAdvice[key];
 
-// 取得目前的日期和時間(結束)
+  app.innerHTML = `
+    <div class="result-meta">完成時間：${formatTime(state.finishedAt)}</div>
+    <div class="panel-box">
+      <p class="code-title">你的何倫碼</p>
+      <p class="code">${code.join('')}</p>
+      <p class="code-names">${code.map(t => `(${t})${NAMES[t]}`).join('＋')}</p>
+      ${ties.length ? `<p class="tie">${tieText(ties)}</p>` : ''}
+      ${hexagonSvg(scores, code)}
+      <div class="bars">
+        ${sorted.map(t => `
+          <div class="bar-row${code.includes(t) ? ' top' : ''}">
+            <span class="label">${NAMES[t]} ${t}</span>
+            <span class="track"><span class="fill" style="display:block;width:${scores[t] / MAX_SCORE * 100}%"></span></span>
+            <span class="num">${scores[t]}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="panel-box advice">
+      <h3>${key}：${NAMES[code[0]]}＋${NAMES[code[1]]}</h3>
+      <p>${info.advice}</p>
+      <p>${info.careers}</p>
+      <h3>到 104 查看更多職業</h3>
+      <div class="links">
+        ${pairs.map(p => `<a class="link-btn104" href="${LINK_104}${p}" target="_blank" rel="noopener">${p}<small>${NAMES[p[0]]}＋${NAMES[p[1]]}</small></a>`).join('')}
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="save">下載結果圖片</button>
+    </div>
+    <div class="notice"><strong>請下載結果圖片或截圖本頁面，<br>請莊老師為您解讀喔</strong></div>
+    <div class="btn-row">
+      <button class="btn ghost" id="restart">重新開始</button>
+    </div>`;
 
-
-// 根據代碼顯示對應的描述
-function getCodeDescription(code) {
-  const descriptions = {
-"RI": "(R)實作型+(I)研究型",
-"IR": "(I)研究型+(R)實作型",
-"RA": "(R)實作型+(A)藝術型",
-"AR": "(A)藝術型+(R)實作型",
-"RS": "(R)實作型+(S)社會型",
-"SR": "(S)社會型+(R)實作型",
-"RE": "(R)實作型+(E)企業型",
-"ER": "(E)企業型+(R)實作型",
-"RC": "(R)實作型+(C)事務型",
-"CR": "(C)事務型+(R)實作型",
-"IA": "(I)研究型+(A)藝術型",
-"AI": "(A)藝術型+(I)研究型",
-"IS": "(I)研究型+(S)社會型",
-"SI": "(S)社會型+(I)研究型",
-"IE": "(I)研究型+(E)企業型",
-"EI": "(E)企業型+(I)研究型",
-"IC": "(I)研究型+(C)事務型",
-"CI": "(C)事務型+(I)研究型",
-"AS": "(A)藝術型+(S)社會型",
-"SA": "(S)社會型+(A)藝術型",
-"AE": "(A)藝術型+(E)企業型",
-"EA": "(E)企業型+(A)藝術型",
-"AC": "(A)藝術型+(C)事務型",
-"CA": "(C)事務型+(A)藝術型",
-"SE": "(S)社會型+(E)企業型",
-"ES": "(E)企業型+(S)社會型",
-"EC": "(E)企業型+(C)事務型",
-"CE": "(C)事務型+(E)企業型",
-"SC": "(S)社會型+(C)事務型",
-"CS": "(C)事務型+(S)社會型",
+  document.getElementById('save').onclick = showImage;
+  document.getElementById('restart').onclick = () => {
+    if (!confirm('確定要重新開始嗎？目前的作答結果會被清除。')) return;
+    clearState();
+    state = newState();
+    go('intro');
   };
-
-  return descriptions[code] || ""; // 如果代碼不存在，返回空字符串
 }
 
+// ===== 何倫六角形（網頁用 SVG，圖片用 canvas，兩者用同一組座標） =====
+// 從左上的 R 開始順時針：R 左上、I 右上、A 右、S 右下、E 左下、C 左
+function hexPoint(cx, cy, r, k) {
+  const angle = (-120 + k * 60) * Math.PI / 180;
+  return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+}
 
-// 根據代碼顯示對應的代碼說明文字
-function getCareerAdvice(code) {
-  const advice = {
-    "RI": "您對研究和創新有高度的興趣，並且具備解決問題的能力。您能夠理解並應用理論知識，並將其轉化為實際可操作的方案。您通常具備分析和規劃的能力，能夠在充滿挑戰和多變的環境中工作，對新事物充滿好奇心。",
-    "IR": "您對探索與研究未知領域有濃厚興趣，並善於將理論應用到實際情境中。您具備良好的邏輯思維，能夠在實踐中驗證您的假設並提出創新的解決方案。",
-    "RA": "您對實際操作及具體解決問題有強烈的興趣，同時對藝術創作和視覺表達有一定的能力。您喜歡將技術與創意結合，並能在各種情境中發揮創新能力。",
-    "AR": "您擁有高度的藝術創意，並能將創意轉化為實際產品或解決方案。您樂於挑戰傳統思維，並善於將藝術概念與實際需求相結合。",
-    "RS": "您對實際操作及解決問題的工作有高度興趣，並且喜歡與他人協作，幫助他人解決問題。您具備良好的實踐能力，同時關心他人的需求並提供支持。",
-    "SR": "您喜歡與他人互動並幫助他們，同時也具備實際操作和技術應用的能力。您能夠在實際情境中解決他人問題，並對創造具體價值充滿熱情。",
-    "RE": "您擁有強烈的實際操作能力並且對商業運作有極高的興趣。您善於在具挑戰的環境中制定解決方案，並具備強烈的結果導向和責任感。",
-    "ER": "您對商業運作和創新有深厚的興趣，並能將理論轉化為具體的行動計劃。您具備創造性問題解決能力，能夠在實際的商業情境中找到突破口。",
-    "RC": "您對具體操作和實踐的工作有濃厚興趣，並且能夠按照規範或標準程序執行任務。您注重細節並能確保每個步驟都準確無誤。",
-    "CR": "您在遵循規範和流程中表現優異，並且對實際操作的工作充滿興趣。您能夠清晰地解決問題，並確保工作有序進行。",
-    "IA": "您喜歡從事與創新、研究和藝術相關的工作，並善於將理論知識與創意結合。您能夠在開創性的環境中發揮創意，並提出獨特的解決方案。",
-    "AI": "您在藝術領域具有強烈的創造力，並能在研究過程中尋找新的表現形式。您喜歡將研究結果應用於藝術創作，並探索新的美學可能性。",
-    "IS": "您對研究和探索新知識有強烈興趣，並且喜歡幫助他人。您能夠將學術研究的成果轉化為有益的社會服務。",
-    "SI": "您擅長與他人建立聯繫並幫助他們，同時對新知識和研究領域也有高度的興趣。您能將研究成果應用於改善社會環境。",
-    "IE": "您對理論和創新有濃厚的興趣，並能將研究成果轉化為商業價值。您擅長將理論應用於市場需求並探索創新商機。",
-    "EI": "您擁有強烈的商業思維，並且對研究領域的探索充滿熱情。您擅長將研究轉化為具體的商業方案，推動市場變革。",
-    "IC": "您喜歡在規範化環境中進行有系統的研究工作，並且具有良好的分析和邏輯思維能力。您能夠遵循標準流程進行科學實驗和研究。",
-    "CI": "您擅長按部就班地進行工作並精確處理細節，並對研究和發現新知識有興趣。您能在實驗室環境中運用研究結果，並將其應用於實際操作中。",
-    "AS": "您具備豐富的藝術才能並且對與人互動、幫助他人充滿熱情。您能將藝術創作用於治療或教育領域，並在社會服務中發揮作用。",
-    "SA": "您喜歡與人互動並幫助他人，同時對藝術表達和創作有濃厚的興趣。您能夠將藝術融入到教育、治療或社會工作中。",
-    "AE": "您具有強烈的藝術創意，並能將其轉化為商業產品或服務。您善於結合藝術和商業，開創新的市場需求。",
-    "EA": "您對商業運作有深入的理解，並能將藝術創意與商業策略結合。您具有開創新市場的能力，並能將藝術創意轉化為商業價值。",
-    "AC": "您擅長創意發揮並喜歡按照具體的規範進行工作。您能將藝術創作與結構化的工作流程結合，並保證結果的高品質。",
-    "CA": "您能夠在遵循規範的同時，將藝術創作融入其中。您具備組織和細節管理的能力，並能確保每個過程有條不紊地進行。",
-    "SE": "您喜歡與他人互動並幫助他們，同時也具備商業頭腦。您能夠在社會服務的同時創造商業價值，並推動社會變革。",
-    "ES": "您具有商業運作的敏銳眼光，並且關心他人的需求。您能夠在商業環境中創造價值，同時也能滿足社會需求。",
-    "EC": "您具備商業運作能力，並能夠依照標準流程執行工作。您注重高效、準確，並能將工作規範化，確保工作達到最高標準。",
-    "CE": "您能夠高效地處理事務並遵循規範，同時具備商業運作的知識和能力。您適合在結構化的商業環境中發揮作用。",
-    "SC": "您擅長與他人建立聯繫並幫助他人，同時能夠處理細節並遵循流程。您能在結構化環境中發揮所長，提供支持並解決問題。",
-    "CS": "您具備組織與細節管理能力，並喜歡與他人互動，幫助他們解決問題。您能在結構化環境中提供協助並保證流程順利運行。"
+function hexagonSvg(scores, code) {
+  const cx = 170, cy = 150, R = 100;
+  const ring = f => TYPES.map((t, k) => hexPoint(cx, cy, R * f, k).map(n => n.toFixed(1)).join(',')).join(' ');
+  const shape = TYPES.map((t, k) => hexPoint(cx, cy, R * scores[t] / MAX_SCORE, k).map(n => n.toFixed(1)).join(',')).join(' ');
+  const spokes = TYPES.map((t, k) => {
+    const [x, y] = hexPoint(cx, cy, R, k);
+    return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#e2e0da"/>`;
+  }).join('');
+  const labels = TYPES.map((t, k) => {
+    const [x, y] = hexPoint(cx, cy, R + 34, k);
+    const top = code.includes(t);
+    const color = top ? 'var(--accent-dark)' : 'var(--muted)';
+    return `<text x="${x.toFixed(1)}" y="${(y - 2).toFixed(1)}" style="fill:${color};font-weight:${top ? 700 : 400}">${NAMES[t].slice(0, 2)} ${t}</text>
+      <text x="${x.toFixed(1)}" y="${(y + 17).toFixed(1)}" style="fill:${color};font-weight:700">${scores[t]}</text>`;
+  }).join('');
+  return `
+    <svg class="hexagon" viewBox="0 0 340 300" role="img" aria-label="何倫六角形">
+      <polygon points="${ring(1)}" fill="none" stroke="#b4b2a9" stroke-width="1.5"/>
+      <polygon points="${ring(0.5)}" fill="none" stroke="#e2e0da"/>
+      ${spokes}
+      <polygon points="${shape}" fill="#1D9E75" fill-opacity="0.25" stroke="#1D9E75" stroke-width="2.5" stroke-linejoin="round"/>
+      <g font-size="15" text-anchor="middle">${labels}</g>
+    </svg>`;
+}
+
+// ===== 產生結果圖片（在手機上畫，不經過網路） =====
+// 中文逐字斷行
+function wrapLines(ctx, text, maxWidth) {
+  const lines = [];
+  let line = '';
+  for (const ch of text) {
+    if (ctx.measureText(line + ch).width > maxWidth && line) {
+      lines.push(line);
+      line = ch;
+    } else {
+      line += ch;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function drawResultImage() {
+  const W = 1080, PAD = 60, LINE = 46;
+  const { scores, sorted, code, ties, pairs } = analyze();
+  const key = code[0] + code[1];
+  const info = codeAdvice[key];
+  const fontFamily = getComputedStyle(document.body).fontFamily;
+  const font = (size, weight) => `${weight || 400} ${size}px ${fontFamily}`;
+
+  const measure = document.createElement('canvas').getContext('2d');
+  measure.font = font(30);
+  const adviceLines = wrapLines(measure, info.advice, W - PAD * 2);
+  const careerLines = wrapLines(measure, info.careers, W - PAD * 2);
+
+  const HEX_TOP = ties.length ? 400 : 360, HEX_R = 220;
+  const BARS_TOP = HEX_TOP + HEX_R * 2 + 230;
+  const TEXT_TOP = BARS_TOP + 6 * 62 + 40;
+  const H = TEXT_TOP + 70 + (adviceLines.length + careerLines.length) * LINE + 30 + 110 + 130;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#f6f5f2';
+  ctx.fillRect(0, 0, W, H);
+
+  // 標題、完成時間、何倫碼
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#2b2b2b';
+  ctx.font = font(56, 700);
+  ctx.fillText(document.title, W / 2, 100);
+  ctx.fillStyle = '#6b6b6b';
+  ctx.font = font(30);
+  ctx.fillText(`完成時間：${formatTime(state.finishedAt)}`, W / 2, 155);
+  ctx.fillText('你的何倫碼', W / 2, 220);
+  ctx.fillStyle = '#0F6E56';
+  ctx.font = font(96, 700);
+  ctx.fillText(code.join(''), W / 2, 310);
+  ctx.fillStyle = '#6b6b6b';
+  ctx.font = font(30);
+  ctx.fillText(code.map(t => `(${t})${NAMES[t]}`).join('＋'), W / 2, 355);
+  if (ties.length) {
+    ctx.fillStyle = '#0F6E56';
+    ctx.font = font(30, 700);
+    ctx.fillText(tieText(ties), W / 2, 395);
+  }
+
+  // 六角形
+  const cx = W / 2, cy = HEX_TOP + HEX_R + 110; // 上方留空間給頂點標籤
+  const path = f => {
+    ctx.beginPath();
+    TYPES.forEach((t, k) => {
+      const [x, y] = hexPoint(cx, cy, HEX_R * f(t), k);
+      k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    });
+    ctx.closePath();
   };
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#b4b2a9';
+  path(() => 1);
+  ctx.stroke();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#e2e0da';
+  path(() => 0.5);
+  ctx.stroke();
+  TYPES.forEach((t, k) => {
+    const [x, y] = hexPoint(cx, cy, HEX_R, k);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  });
+  path(t => scores[t] / MAX_SCORE);
+  ctx.fillStyle = 'rgba(29,158,117,0.25)';
+  ctx.fill();
+  ctx.lineWidth = 6;
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#1D9E75';
+  ctx.stroke();
+  TYPES.forEach((t, k) => {
+    const [x, y] = hexPoint(cx, cy, HEX_R + 75, k);
+    const top = code.includes(t);
+    ctx.fillStyle = top ? '#0F6E56' : '#6b6b6b';
+    ctx.font = font(32, top ? 700 : 400);
+    ctx.fillText(`${NAMES[t].slice(0, 2)} ${t}`, x, y - 4);
+    ctx.font = font(34, 700);
+    ctx.fillText(String(scores[t]), x, y + 36);
+  });
 
-  return advice[code] || "目前暫無對應的代碼說明，請確認測驗結果或聯繫莊士勇老師進行進一步分析。";
+  // 長條
+  sorted.forEach((t, k) => {
+    const y = BARS_TOP + k * 62;
+    const top = code.includes(t);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = top ? '#0F6E56' : '#2b2b2b';
+    ctx.font = font(32, top ? 700 : 400);
+    ctx.fillText(`${NAMES[t]} ${t}`, PAD, y + 30);
+    const bx = PAD + 190, bw = W - PAD * 2 - 190 - 70;
+    ctx.fillStyle = '#ffffff';
+    roundRect(ctx, bx, y + 6, bw, 30, 15);
+    ctx.fill();
+    if (scores[t] > 0) {
+      ctx.fillStyle = top ? '#1D9E75' : '#b4b2a9';
+      roundRect(ctx, bx, y + 6, Math.max(30, bw * scores[t] / MAX_SCORE), 30, 15);
+      ctx.fill();
+    }
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#2b2b2b';
+    ctx.font = font(32, 700);
+    ctx.fillText(String(scores[t]), W - PAD, y + 32);
+  });
+
+  // 說明文字
+  let y = TEXT_TOP;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#6b6b6b';
+  ctx.font = font(32, 700);
+  ctx.fillText(`${key}：${NAMES[code[0]]}＋${NAMES[code[1]]}`, PAD, y);
+  y += 20;
+  ctx.fillStyle = '#2b2b2b';
+  ctx.font = font(30);
+  adviceLines.forEach(line => { y += LINE; ctx.fillText(line, PAD, y); });
+  y += 20;
+  careerLines.forEach(line => { y += LINE; ctx.fillText(line, PAD, y); });
+  y += 70;
+  ctx.fillStyle = '#6b6b6b';
+  ctx.font = font(30, 700);
+  ctx.fillText(`104 查詢代碼：${pairs.join('、')}`, PAD, y);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#6b6b6b';
+  ctx.font = font(26);
+  ctx.fillText('© 2025–2026 GCDF全球職涯發展師 莊士勇 設計', W / 2, H - 70);
+  ctx.fillText('shihyungchuang.github.io/holland', W / 2, H - 30);
+  return canvas;
 }
 
-// 根據代碼顯示對應的適合職業建議文字
-function getCareerSuggestions(code) {
-  const suggestions = {
-  "RI": "適合擔任研究員、資訊科技專家、數據分析師、學術研究人員、新產品開發專員、技術創新顧問等職位。",
-  "IR": "適合擔任科學研究員、資料科學家、技術顧問、產品經理、創新設計專員等職位。",
-  "RA": "適合擔任工業設計師、建築師、產品設計師、廣告創意人員、視覺藝術家等職位。",
-  "AR": "適合擔任藝術總監、工業設計師、平面設計師、創意總監等職位。",
-  "RS": "適合擔任社會工作者、醫療技術員、心理輔導員、教師、非營利組織工作者等職位。",
-  "SR": "適合擔任護士、醫療助理、社會工作者、教師、職業訓練師等職位。",
-  "RE": "適合擔任企業管理者、業務發展專員、項目經理、營運主管等職位。",
-  "ER": "適合擔任創業者、業務經理、行銷總監、營運主管等職位。",
-  "RC": "適合擔任技術員、行政助理、質量控制員、銀行行員、會計助理等職位。",
-  "CR": "適合擔任檔案管理員、行政助理、銀行行員、法務助理等職位。",
-  "IA": "適合擔任研究員、藝術策展人、創意總監、設計師等職位。",
-  "AI": "適合擔任藝術家、藝術治療師、設計師、電影編劇等職位。",
-  "IS": "適合擔任教育工作者、心理學家、社會工作者、職業輔導員等職位。",
-  "SI": "適合擔任心理學家、社會工作者、教育顧問、研究員等職位。",
-  "IE": "適合擔任市場研究員、產品經理、創新顧問、業務開發專員等職位。",
-  "EI": "適合擔任產品開發經理、業務經理、創業顧問、研究主管等職位。",
-  "IC": "適合擔任實驗室研究員、數據分析師、學術研究員、技術支持工程師等職位。",
-  "CI": "適合擔任數據分析員、學術研究員、實驗室技術員等職位。",
-  "AS": "適合擔任藝術治療師、社會工作者、教育藝術工作者等職位。",
-  "SA": "適合擔任藝術治療師、社會工作者、教育藝術工作者等職位。",
-  "AE": "適合擔任藝術總監、品牌設計師、創業者、文化產業經理等職位。",
-  "EA": "適合擔任創意總監、品牌經理、產品設計師、創業者等職位。",
-  "AC": "適合擔任藝術品保管員、設計師、視覺藝術專業人員等職位。",
-  "CA": "適合擔任設計助理、藝術策展人、視覺設計師等職位。",
-  "SE": "適合擔任非營利組織管理者、社會企業創辦人、公共事務經理等職位。",
-  "ES": "適合擔任企業社會責任經理、人力資源經理、社會服務經理等職位。",
-  "EC": "適合擔任業務經理、項目經理、銀行職員等職位。",
-  "CE": "適合擔任項目經理、行政經理、財務主管等職位。",
-  "SC": "適合擔任醫療服務協調員、社會工作助理、行政支持等職位。",
-  "CS": "適合擔任行政助理、人力資源專員、社會服務助理等職位。",
-  };
-
-  // 根據代碼顯示對應的適合職業建議文字
-  return suggestions[code] || "目前暫無對應的適合職涯建議，請確認測驗結果或聯繫莊士勇老師進行進一步分析。";
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
 }
 
-    // 初始顯示第一題
-    showQuestion();
-  </script>
+function showImage() {
+  const url = drawResultImage().toDataURL('image/png');
+  const d = new Date(state.finishedAt);
+  const name = `何倫碼_${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}.png`;
 
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="panel">
+      <img src="${url}" alt="何倫碼測驗結果">
+      <p class="notice">手機請<strong>長按圖片</strong>儲存到相簿</p>
+      <div class="btn-row">
+        <a class="btn" href="${url}" download="${name}" style="text-decoration:none">下載圖片</a>
+        <button class="btn ghost" id="closeImg">關閉</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#closeImg').onclick = () => overlay.remove();
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+}
+
+render();
+</script>
 </body>
 </html>
