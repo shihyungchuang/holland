@@ -101,6 +101,8 @@ h1 { font-size: 26px; margin: 0 0 12px; letter-spacing: 1px; }
 .tie { text-align: center; font-size: 15px; color: var(--accent-dark); font-weight: 600; margin: 4px 0 0; }
 
 .hexagon { display: block; width: 100%; max-width: 420px; margin: 4px auto 0; }
+.hex-note { font-size: 15px; color: var(--muted); line-height: 1.7; margin: 4px 4px 10px; }
+.hex-note strong { color: var(--accent-dark); }
 .bars { margin-top: 6px; }
 .bar-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 16px; }
 .bar-row .label { flex: 0 0 76px; }
@@ -437,6 +439,7 @@ function renderResult() {
       <p class="code-names">${code.map(t => `(${t})${NAMES[t]}`).join('＋')}</p>
       ${ties.length ? `<p class="tie">${tieText(ties)}</p>` : ''}
       ${hexagonSvg(scores, code)}
+      <p class="hex-note">六角形上<strong>相鄰</strong>的類型性質相近，<strong>對角</strong>的類型性質差異較大。你的分數集中在相鄰的類型，代表興趣方向一致；分散在對角，代表興趣多元。</p>
       <div class="bars">
         ${sorted.map(t => `
           <div class="bar-row${code.includes(t) ? ' top' : ''}">
