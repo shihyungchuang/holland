@@ -111,14 +111,40 @@ h1 { font-size: 26px; margin: 0 0 12px; letter-spacing: 1px; }
 .bar-row .num { flex: 0 0 28px; text-align: right; font-weight: 700; }
 
 .advice h3 { font-size: 16px; color: var(--muted); margin: 0 0 6px; }
+
+/* 三碼類型卡 */
+.types-title { font-size: 18px; text-align: center; margin: 0 0 6px; }
+.reading { font-size: 15px; color: var(--muted); line-height: 1.7; margin: 0 0 12px; }
+.type-card { border-left: 6px solid var(--accent); background: var(--bg); border-radius: 10px; padding: 12px 14px; margin-top: 12px; }
+.type-head { display: flex; align-items: baseline; gap: 8px; }
+.type-head .rank { font-size: 13px; font-weight: 700; color: #fff; background: var(--accent); border-radius: 999px; padding: 2px 10px; }
+.type-head b { font-size: 20px; color: var(--accent-dark); }
+.type-card .summary { font-size: 17px; font-weight: 700; margin: 8px 0 6px; line-height: 1.6; }
+.type-card dl { margin: 0; }
+.type-card dt { font-size: 14px; font-weight: 700; color: var(--muted); margin-top: 8px; }
+.type-card dd { margin: 2px 0 0; line-height: 1.7; }
+.type-card dd.caution { color: #8a4b1f; }
 .advice p { margin: 0 0 10px; line-height: 1.7; }
-.links { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+/* 下一步：看完分數就看到（104 連結，或興趣還沒分化時的說明＋LINE） */
+.next-step { margin: 16px 0; text-align: center; }
+.next-step h3 { font-size: 16px; color: var(--muted); margin: 0 0 8px; }
+.links { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .link-btn104 {
-  display: inline-block; text-decoration: none; text-align: center;
-  font-size: 16px; font-weight: 700; color: var(--brand);
-  border: 2px solid var(--brand); border-radius: 12px; padding: 8px 14px;
+  flex: 1 1 140px; max-width: 320px;
+  display: block; text-decoration: none; text-align: center;
+  font-size: 20px; font-weight: 700; color: #fff; background: var(--brand);
+  border-radius: 12px; padding: 12px 14px;
 }
-.link-btn104 small { display: block; font-size: 13px; font-weight: 400; color: var(--muted); }
+.link-btn104 small { display: block; font-size: 14px; font-weight: 400; opacity: .9; }
+.even-text {
+  background: var(--surface); border: 2px solid var(--accent); border-radius: var(--radius);
+  padding: 14px 16px; margin: 0 0 12px; text-align: left; line-height: 1.7; font-weight: 600;
+}
+.line-btn {
+  display: inline-block; text-decoration: none;
+  font-size: 18px; font-weight: 700; color: #fff; background: #06C755;
+  border-radius: 12px; padding: 12px 22px;
+}
 
 /* ===== 按鈕 ===== */
 .btn {
@@ -166,13 +192,13 @@ footer { text-align: center; color: var(--muted); font-size: 14px; padding: 24px
   <footer>
     本測驗依據Holland六型人格理論與SDS架構設計，<br>
     並由莊士勇諮詢師依現代職場情境重新設計。<br>
-    &copy; 2025–2026 GCDF全球職涯發展師 莊士勇 設計
+    &copy; 2025–2026 GCDF全球職涯發展師 莊士勇 Steven 設計
   </footer>
 </div>
 
 <!-- 載入題目與代碼說明 -->
-<script src="holland-questions.js"></script>
-<script src="holland-results.js"></script>
+<script src="holland-questions.js?v=20261111"></script>
+<script src="holland-results.js?v=20261111"></script>
 
 <script>
 // ===== 作答進度 =====
@@ -338,10 +364,58 @@ function analyze() {
     const group = candidates.filter(x => scores[x] === scores[t]);
     if (group.length > 1 && group[0] === t) ties.push(group);
   });
-  // 104 只有兩碼：用候選類型兩兩組合（最多 6 組）
-  const pairs = [];
-  candidates.forEach((a, i) => candidates.slice(i + 1).forEach(b => pairs.push(a + b)));
-  return { scores, sorted, code, ties, pairs: pairs.slice(0, 6) };
+  // 興趣還沒分化時不列 104 連結，改顯示說明：最高分偏低用 LOW_TEXT，三型以上同分用 EVEN_TEXT
+  const low = scores[sorted[0]] <= LOW_MAX;
+  const pairs = low ? null : pairs104(scores);
+  const note = pairs ? null : low ? LOW_TEXT : EVEN_TEXT;
+  return { scores, sorted, code, ties, pairs, note };
+}
+
+// 104 職業查詢只收兩碼。規則：
+// - 最高分三型以上同分：不列連結（回傳 null），改顯示說明
+// - 最高分兩型同分（例如 A、E）：列兩組 AE、EA
+// - 最高分只有一型（例如 A）：
+//     第二高分一型 → 一組（例如 AE）
+//     第二高分兩型同分（例如 E、S）→ 兩組 AE、AS
+//     第二高分三型以上同分 → 不列連結，改顯示說明
+// 同分的類型依 R I A S E C 順序排
+function pairs104(scores) {
+  const levels = [...new Set(TYPES.map(t => scores[t]))].sort((a, b) => b - a);
+  const group = s => TYPES.filter(t => scores[t] === s);
+  const first = group(levels[0]);
+  if (first.length >= 3) return null;
+  if (first.length === 2) return [first[0] + first[1], first[1] + first[0]];
+  const second = group(levels[1]);
+  if (second.length >= 3) return null;
+  return second.map(t => first[0] + t);
+}
+
+// 不列 104 連結時的說明與聯絡方式
+const LOW_MAX = 6; // 最高分在這個分數以下（滿分 20 的三分之一以下），視為「低而平均」
+const EVEN_TEXT = '你的興趣分布相當平均，代表你有多元發展的可能，也可能還在探索階段。這類結果需要進一步對話才看得清楚，歡迎聯繫 Steven 莊老師。';
+const LOW_TEXT = '你對這些活動的興趣普遍不高，可能是還沒有機會接觸，也可能是最近的狀態讓你提不起勁。這類結果需要進一步對話才看得清楚，歡迎聯繫 Steven 莊老師。';
+const LINE_ID = '@232biwoo';
+const LINE_URL = 'https://line.me/R/ti/p/' + LINE_ID;
+
+// 三碼類型卡
+const RANKS = ['第一碼', '第二碼', '第三碼'];
+const READING_NOTE = '何倫碼的三個字母依興趣強弱排列：<strong>第一碼</strong>是你最主要的興趣，<strong>第二碼</strong>是重要的搭配，<strong>第三碼</strong>是輔助的特質。三者合在一起，才是完整的你。';
+const CARD_FIELDS = [
+  ['traits', '特質'],
+  ['activities', '喜歡的活動'],
+  ['environment', '適合的工作環境'],
+  ['careers', '代表職業'],
+  ['caution', 'Steven 莊老師的提醒']
+];
+
+function typeCardHtml(t, k) {
+  const c = typeCards[t];
+  return `
+    <div class="type-card">
+      <div class="type-head"><span class="rank">${RANKS[k]}</span><b>${t} ${NAMES[t]}</b></div>
+      <p class="summary">${c.summary}</p>
+      <dl>${CARD_FIELDS.map(([f, label]) => `<dt>${label}</dt><dd${f === 'caution' ? ' class="caution"' : ''}>${c[f]}</dd>`).join('')}</dl>
+    </div>`;
 }
 
 function tieText(ties) {
@@ -349,7 +423,7 @@ function tieText(ties) {
 }
 
 function renderResult() {
-  const { scores, sorted, code, ties, pairs } = analyze();
+  const { scores, sorted, code, ties, pairs, note } = analyze();
   const key = code[0] + code[1];
   const info = codeAdvice[key];
 
@@ -370,19 +444,29 @@ function renderResult() {
           </div>`).join('')}
       </div>
     </div>
-    <div class="panel-box advice">
-      <h3>${key}：${NAMES[code[0]]}＋${NAMES[code[1]]}</h3>
-      <p>${info.advice}</p>
-      <p>${info.careers}</p>
-      <h3>到 104 查看更多職業</h3>
+    <div class="next-step">
+      ${pairs ? `
+      <h3>下一步：到 104 查看適合的職業</h3>
       <div class="links">
         ${pairs.map(p => `<a class="link-btn104" href="${LINK_104}${p}" target="_blank" rel="noopener">${p}<small>${NAMES[p[0]]}＋${NAMES[p[1]]}</small></a>`).join('')}
-      </div>
+      </div>` : `
+      <p class="even-text">${note}</p>
+      <a class="line-btn" href="${LINE_URL}" target="_blank" rel="noopener">加入 Steven 莊老師的 LINE</a>`}
+    </div>
+    <div class="panel-box">
+      <h2 class="types-title">你的三碼代表什麼</h2>
+      <p class="reading">${READING_NOTE}</p>
+      ${code.map((t, k) => typeCardHtml(t, k)).join('')}
+    </div>
+    <div class="panel-box advice">
+      <h3>前兩碼組合　${key}：${NAMES[code[0]]}＋${NAMES[code[1]]}</h3>
+      <p>${info.advice}</p>
+      <p>${info.careers}</p>
     </div>
     <div class="btn-row">
       <button class="btn" id="save">下載結果圖片</button>
     </div>
-    <div class="notice"><strong>請下載結果圖片或截圖本頁面，<br>請莊老師為您解讀喔</strong></div>
+    <div class="notice"><strong>請下載結果圖片或截圖本頁面，<br>請 Steven 莊老師為您解讀喔</strong></div>
     <div class="btn-row">
       <button class="btn ghost" id="restart">重新開始</button>
     </div>`;
@@ -447,7 +531,7 @@ function wrapLines(ctx, text, maxWidth) {
 
 function drawResultImage() {
   const W = 1080, PAD = 60, LINE = 46;
-  const { scores, sorted, code, ties, pairs } = analyze();
+  const { scores, sorted, code, ties, pairs, note } = analyze();
   const key = code[0] + code[1];
   const info = codeAdvice[key];
   const fontFamily = getComputedStyle(document.body).fontFamily;
@@ -457,11 +541,17 @@ function drawResultImage() {
   measure.font = font(30);
   const adviceLines = wrapLines(measure, info.advice, W - PAD * 2);
   const careerLines = wrapLines(measure, info.careers, W - PAD * 2);
+  const typeLines = code.map((t, k) => wrapLines(measure, `${RANKS[k]} ${t} ${NAMES[t]}：${typeCards[t].summary}`, W - PAD * 2));
+  const TYPES_H = 60 + typeLines.flat().length * LINE + typeLines.length * 16 + 40;
+  measure.font = font(30, 700);
+  const tailLines = pairs
+    ? [`104 查詢代碼：${pairs.join('、')}`]
+    : wrapLines(measure, note, W - PAD * 2).concat([`Steven 莊老師的 LINE：${LINE_ID}`]);
 
   const HEX_TOP = ties.length ? 400 : 360, HEX_R = 220;
   const BARS_TOP = HEX_TOP + HEX_R * 2 + 230;
-  const TEXT_TOP = BARS_TOP + 6 * 62 + 40;
-  const H = TEXT_TOP + 70 + (adviceLines.length + careerLines.length) * LINE + 30 + 110 + 130;
+  const TEXT_TOP = BARS_TOP + 6 * 62 + 40 + TYPES_H;
+  const H = TEXT_TOP + 70 + (adviceLines.length + careerLines.length) * LINE + 30 + 70 + tailLines.length * LINE + 130;
 
   const canvas = document.createElement('canvas');
   canvas.width = W;
@@ -557,27 +647,39 @@ function drawResultImage() {
     ctx.fillText(String(scores[t]), W - PAD, y + 32);
   });
 
-  // 說明文字
-  let y = TEXT_TOP;
+  // 三碼各一句話
+  let y = TEXT_TOP - TYPES_H;
   ctx.textAlign = 'left';
   ctx.fillStyle = '#6b6b6b';
   ctx.font = font(32, 700);
-  ctx.fillText(`${key}：${NAMES[code[0]]}＋${NAMES[code[1]]}`, PAD, y);
+  ctx.fillText('你的三碼代表什麼', PAD, y);
+  ctx.fillStyle = '#0F6E56';
+  ctx.font = font(30);
+  typeLines.forEach(lines => {
+    y += 16;
+    lines.forEach(line => { y += LINE; ctx.fillText(line, PAD, y); });
+  });
+
+  // 說明文字
+  y = TEXT_TOP;
+  ctx.fillStyle = '#6b6b6b';
+  ctx.font = font(32, 700);
+  ctx.fillText(`前兩碼組合　${key}：${NAMES[code[0]]}＋${NAMES[code[1]]}`, PAD, y);
   y += 20;
   ctx.fillStyle = '#2b2b2b';
   ctx.font = font(30);
   adviceLines.forEach(line => { y += LINE; ctx.fillText(line, PAD, y); });
   y += 20;
   careerLines.forEach(line => { y += LINE; ctx.fillText(line, PAD, y); });
-  y += 70;
+  y += 70 - LINE;
   ctx.fillStyle = '#6b6b6b';
   ctx.font = font(30, 700);
-  ctx.fillText(`104 查詢代碼：${pairs.join('、')}`, PAD, y);
+  tailLines.forEach(line => { y += LINE; ctx.fillText(line, PAD, y); });
 
   ctx.textAlign = 'center';
   ctx.fillStyle = '#6b6b6b';
   ctx.font = font(26);
-  ctx.fillText('© 2025–2026 GCDF全球職涯發展師 莊士勇 設計', W / 2, H - 70);
+  ctx.fillText('© 2025–2026 GCDF全球職涯發展師 莊士勇 Steven 設計', W / 2, H - 70);
   ctx.fillText('shihyungchuang.github.io/holland', W / 2, H - 30);
   return canvas;
 }
