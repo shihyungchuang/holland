@@ -132,6 +132,7 @@ h1 { font-size: 26px; margin: 0 0 12px; letter-spacing: 1px; }
 /* 下一步：看完分數就看到（104 連結，或興趣還沒分化時的說明＋LINE） */
 .next-step { margin: 16px 0; text-align: center; }
 .next-step h3 { font-size: 16px; color: var(--muted); margin: 0 0 8px; }
+.tie-hint { font-size: 15px; color: var(--accent-dark); font-weight: 600; line-height: 1.7; text-align: left; background: #E6F2EF; border-radius: 8px; padding: 8px 12px; margin: 0 0 10px; }
 .links { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .link-btn104 {
   flex: 1 1 140px; max-width: 320px;
@@ -380,7 +381,9 @@ function analyze() {
   const low = scores[sorted[0]] <= LOW_MAX;
   const pairs = low ? null : pairs104(scores);
   const note = pairs ? null : low ? LOW_TEXT : EVEN_TEXT;
-  return { scores, sorted, code, ties, pairs, note };
+  // 第一碼明確、第二碼有三型以上同分：照樣給連結，另外加提示
+  const secondTie = pairs ? secondTieGroup(scores) : null;
+  return { scores, sorted, code, ties, pairs, note, secondTie };
 }
 
 // 104 職業查詢只收兩碼。規則：
@@ -389,17 +392,23 @@ function analyze() {
 // - 最高分只有一型（例如 A）：
 //     第二高分一型 → 一組（例如 AE）
 //     第二高分兩型同分（例如 E、S）→ 兩組 AE、AS
-//     第二高分三型以上同分 → 不列連結，改顯示說明
+//     第二高分三型以上同分 → 第一碼搭配每一個同分的類型（例如 SI、SE、SC），並加提示
 // 同分的類型依 R I A S E C 順序排
-function pairs104(scores) {
+function scoreGroups(scores) {
   const levels = [...new Set(TYPES.map(t => scores[t]))].sort((a, b) => b - a);
-  const group = s => TYPES.filter(t => scores[t] === s);
-  const first = group(levels[0]);
+  return levels.map(s => TYPES.filter(t => scores[t] === s));
+}
+
+function pairs104(scores) {
+  const [first, second] = scoreGroups(scores);
   if (first.length >= 3) return null;
   if (first.length === 2) return [first[0] + first[1], first[1] + first[0]];
-  const second = group(levels[1]);
-  if (second.length >= 3) return null;
   return second.map(t => first[0] + t);
+}
+
+function secondTieGroup(scores) {
+  const [first, second] = scoreGroups(scores);
+  return first.length === 1 && second.length >= 3 ? second : null;
 }
 
 // 不列 104 連結時的說明與聯絡方式
@@ -435,7 +444,8 @@ function tieText(ties) {
 }
 
 function renderResult() {
-  const { scores, sorted, code, ties, pairs, note } = analyze();
+  const { scores, sorted, code, ties, pairs, note, secondTie } = analyze();
+  const tieList = secondTie ? secondTie.join('、') : '';
   const key = code[0] + code[1];
   const info = codeAdvice[key];
 
@@ -460,6 +470,7 @@ function renderResult() {
     <div class="next-step">
       ${pairs ? `
       <h3>下一步：到 104 查看適合的職業</h3>
+      ${secondTie ? `<p class="tie-hint">你的第二碼有 ${tieList} 同分，可以每個組合都看看，比較哪一種最有感覺。想進一步了解，歡迎聯繫 Steven 莊老師。</p>` : ''}
       <div class="links">
         ${pairs.map(p => `<a class="link-btn104" href="${LINK_104}${p}" target="_blank" rel="noopener">${p}<small>${NAMES[p[0]]}＋${NAMES[p[1]]}</small></a>`).join('')}
       </div>` : `
@@ -473,6 +484,7 @@ function renderResult() {
     </div>
     <div class="panel-box advice">
       <h3>前兩碼組合　${key}：${NAMES[code[0]]}＋${NAMES[code[1]]}</h3>
+      ${secondTie ? `<p class="tie-hint">你的第二碼有 ${tieList} 同分，以下先以 ${key} 為例說明。其他組合可以點上方的 104 按鈕查看。</p>` : ''}
       <p>${info.advice}</p>
       <p>${info.careers}</p>
     </div>
