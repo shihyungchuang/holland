@@ -159,6 +159,14 @@ h1 { font-size: 26px; margin: 0 0 12px; letter-spacing: 1px; }
   background: var(--brand); color: #fff;
 }
 .btn.ghost { background: var(--surface); color: var(--text); border: 1px solid var(--line); }
+.line-row { text-align: center; margin: 4px 0 0; }
+.line-link {
+  display: inline-block; text-decoration: none;
+  font-size: 15px; font-weight: 700; color: #06A048; background: var(--surface);
+  border: 1.5px solid #06C755; border-radius: 999px; padding: 6px 16px;
+}
+.copy-status { text-align: center; color: var(--accent-dark); font-weight: 700; min-height: 1.5em; margin: -6px 0 0; }
+.copy-box { width: 100%; height: 50vh; font: inherit; font-size: 15px; border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
 .btn-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 16px 0; }
 
 /* ===== 結果圖片視窗 ===== */
@@ -456,7 +464,7 @@ function renderResult() {
         ${pairs.map(p => `<a class="link-btn104" href="${LINK_104}${p}" target="_blank" rel="noopener">${p}<small>${NAMES[p[0]]}＋${NAMES[p[1]]}</small></a>`).join('')}
       </div>` : `
       <p class="even-text">${note}</p>
-      <a class="line-btn" href="${LINE_URL}" target="_blank" rel="noopener">加入 Steven 莊老師的 LINE</a>`}
+      <a class="line-btn" href="${LINE_URL}" target="_blank" rel="noopener">加入 Steven 莊老師的官方 LINE</a>`}
     </div>
     <div class="panel-box">
       <h2 class="types-title">你的三碼代表什麼</h2>
@@ -470,13 +478,17 @@ function renderResult() {
     </div>
     <div class="btn-row">
       <button class="btn" id="save">下載結果圖片</button>
+      <button class="btn ghost" id="copy">複製文字</button>
     </div>
+    <p class="copy-status" id="copyStatus" aria-live="polite"></p>
     <div class="notice"><strong>請下載結果圖片或截圖本頁面，<br>請 Steven 莊老師為您解讀喔</strong></div>
+    ${pairs ? `<p class="line-row"><a class="line-link" href="${LINE_URL}" target="_blank" rel="noopener">加入 Steven 莊老師的官方 LINE</a></p>` : ''}
     <div class="btn-row">
       <button class="btn ghost" id="restart">重新開始</button>
     </div>`;
 
   document.getElementById('save').onclick = showImage;
+  document.getElementById('copy').onclick = () => copyText(resultText());
   document.getElementById('restart').onclick = () => {
     if (!confirm('確定要重新開始嗎？目前的作答結果會被清除。')) return;
     clearState();
@@ -551,7 +563,7 @@ function drawResultImage() {
   measure.font = font(30, 700);
   const tailLines = pairs
     ? [`104 查詢代碼：${pairs.join('、')}`]
-    : wrapLines(measure, note, W - PAD * 2).concat([`Steven 莊老師的 LINE：${LINE_ID}`]);
+    : wrapLines(measure, note, W - PAD * 2).concat([`Steven 莊老師的官方 LINE：${LINE_ID}`]);
 
   const HEX_TOP = ties.length ? 400 : 360, HEX_R = 220;
   const BARS_TOP = HEX_TOP + HEX_R * 2 + 230;
@@ -697,6 +709,66 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.arcTo(x, y + h, x, y, r);
   ctx.arcTo(x, y, x + w, y, r);
   ctx.closePath();
+}
+
+// ===== 複製文字（貼到記事本、LINE、Email；只複製到使用者自己的手機） =====
+function resultText() {
+  const { scores, sorted, code, ties, pairs, note } = analyze();
+  const lines = [
+    `【${document.title}】`,
+    `完成時間：${formatTime(state.finishedAt)}`,
+    `你的何倫碼：${code.join('')}（${code.map(t => NAMES[t]).join('＋')}）`
+  ];
+  if (ties.length) lines.push(tieText(ties));
+  lines.push('', '各類型分數：');
+  lines.push(sorted.slice(0, 3).map(t => `${NAMES[t]} ${t} ${scores[t]}`).join('、'));
+  lines.push(sorted.slice(3).map(t => `${NAMES[t]} ${t} ${scores[t]}`).join('、'));
+  lines.push('');
+  code.forEach((t, k) => lines.push(`${RANKS[k]} ${t} ${NAMES[t]}：${typeCards[t].summary}`));
+  lines.push('');
+  if (pairs) lines.push(`104 查詢代碼：${pairs.join('、')}`);
+  else lines.push(note, `Steven 莊老師的官方 LINE：${LINE_ID}`);
+  lines.push('', location.origin + location.pathname, '© 2025–2026 GCDF全球職涯發展師 莊士勇 Steven 設計');
+  return lines.join('\n');
+}
+
+function copyText(text) {
+  const status = document.getElementById('copyStatus');
+  const done = () => { status.textContent = '已複製！可以貼到記事本、LINE 或 Email'; };
+  // 先用新的複製方式，不支援時改用舊方式；都不行就顯示文字讓使用者自己選取
+  const fallback = () => {
+    const box = document.createElement('textarea');
+    box.value = text;
+    box.setAttribute('readonly', '');
+    box.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(box);
+    box.select();
+    box.setSelectionRange(0, text.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    box.remove();
+    if (ok) done();
+    else showTextToCopy(text);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else {
+    fallback();
+  }
+}
+
+function showTextToCopy(text) {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="panel">
+      <p class="notice">請<strong>長按下方文字</strong>，選擇「全選」後複製</p>
+      <textarea class="copy-box" readonly></textarea>
+      <div class="btn-row"><button class="btn ghost" id="closeCopy">關閉</button></div>
+    </div>`;
+  overlay.querySelector('textarea').value = text;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#closeCopy').onclick = () => overlay.remove();
 }
 
 function showImage() {
